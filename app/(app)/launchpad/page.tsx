@@ -31,22 +31,25 @@ export default async function LaunchpadPage() {
   const customers = metrics.find((m) => m.key === "active_customers");
   const hasRecentItems = data.recentLibraryItems.length > 0;
   const hasPending = data.pendingForCurrentUser.length > 0;
+  const hasFromTeammate = data.recentUpdates.length > 0;
 
   const teammateColor = data.teammate.slug === "james" ? "text-james" : "text-cory";
 
-  const subtitle = hasRecentItems ? (
+  const subtitle = hasPending ? (
     <>
-      <strong className={teammateColor}>{data.teammate.fullName}</strong> added{" "}
-      {data.recentUpdates.length} thing{data.recentUpdates.length !== 1 ? "s" : ""} recently.
-      {hasPending && (
-        <>
-          {" "}
-          {data.pendingForCurrentUser.length} decision{data.pendingForCurrentUser.length !== 1 ? "s" : ""} waiting on you.
-        </>
-      )}
+      {data.pendingForCurrentUser.length} thing{data.pendingForCurrentUser.length !== 1 ? "s" : ""} waiting on you, and{" "}
+      <strong className={teammateColor}>{data.teammate.fullName}</strong> dropped{" "}
+      {data.recentUpdates.length} update{data.recentUpdates.length !== 1 ? "s" : ""} since we last talked.
+    </>
+  ) : hasFromTeammate ? (
+    <>
+      No calls queued up. <strong className={teammateColor}>{data.teammate.fullName}</strong> sent{" "}
+      {data.recentUpdates.length} thing{data.recentUpdates.length !== 1 ? "s" : ""} over — worth a look.
     </>
   ) : (
-    <>Start the week by dropping something for <strong className={teammateColor}>{data.teammate.fullName}</strong>.</>
+    <>
+      Quiet morning. Drop something for <strong className={teammateColor}>{data.teammate.fullName}</strong> or jot down what&apos;s on your mind.
+    </>
   );
 
   return (
@@ -57,33 +60,83 @@ export default async function LaunchpadPage() {
         title={`Good ${getGreeting()}, ${data.currentUser.fullName}.`}
       />
 
-      {/* Key metrics */}
-      <section className="mb-4 grid gap-3 md:grid-cols-3">
-        <div className="surface-card p-5">
-          <div className="mb-3 text-[11px] font-semibold uppercase tracking-[0.08em] text-tertiary">
-            Launch target · Jul 1, 2026
-          </div>
+      {/* Signal strip — calmer, calm, one row */}
+      <section className="surface-card mb-4 flex flex-wrap items-center gap-x-8 gap-y-3 px-5 py-4">
+        <SignalItem label="Launch" sub="Jul 1, 2026">
           <Countdown />
-        </div>
-        <MetricTile label="Waitlist" meta="signups" value={metricValue(waitlist)} />
-        <MetricTile label="Customers" meta="active" value={metricValue(customers)} />
+        </SignalItem>
+        <div className="hidden h-8 w-px bg-border sm:block" />
+        <SignalItem label="Waitlist">
+          <MetricNumber value={metricValue(waitlist)} unit="signups" />
+        </SignalItem>
+        <div className="hidden h-8 w-px bg-border sm:block" />
+        <SignalItem label="Customers">
+          <MetricNumber value={metricValue(customers)} unit="active" />
+        </SignalItem>
+        <div className="hidden h-8 w-px bg-border sm:block" />
+        <SignalItem label={`${data.teammate.fullName}'s time`}>
+          <TeammateTime timezone={data.teammate.timezone} colorClass={teammateColor} />
+        </SignalItem>
       </section>
 
-      {/* Main content */}
-      <section className="mb-4 grid gap-4 xl:grid-cols-[1fr_288px]">
-        {/* Latest drops */}
+      {/* Needs a call + This week */}
+      <section className="mb-4 grid gap-4 lg:grid-cols-[1fr_320px]">
+        <div className="surface-card p-5">
+          <div className="mb-3 flex items-center justify-between">
+            <div>
+              <div className="text-[15px] font-semibold tracking-[-0.01em]">Needs a call from you</div>
+              <div className="mt-0.5 text-[12px] text-tertiary">
+                {hasPending
+                  ? `${data.pendingForCurrentUser.length} open · ${data.blockingDecisionCount > 0 ? `${data.blockingDecisionCount} blocking` : "nothing blocking"}`
+                  : "All aligned for now"}
+              </div>
+            </div>
+            <Link className="text-xs font-medium text-accent transition hover:text-accent-hover" href="/decisions">
+              All decisions →
+            </Link>
+          </div>
+
+          {hasPending ? (
+            <div className="space-y-2">
+              {data.pendingForCurrentUser.map((decision) => (
+                <Link
+                  className="block rounded-[8px] border border-border bg-subtle px-3.5 py-3 transition hover:border-border-strong hover:bg-card"
+                  href={`/decisions/${decision.id}`}
+                  key={decision.id}
+                >
+                  <div className="mb-1 flex items-center gap-2 text-[10.5px] font-semibold uppercase tracking-[0.07em]">
+                    <span className={teammateColor}>{data.teammate.fullName}</span>
+                    <span className="text-tertiary">· asked {ageWord(decision.createdAt)}</span>
+                  </div>
+                  <div className="text-[13.5px] leading-[1.45] text-primary">{decision.question}</div>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <div className="flex flex-col items-center gap-1 rounded-[8px] bg-subtle py-10 text-center">
+              <div className="text-[13px] font-medium text-secondary">Nothing waiting on you.</div>
+              <div className="text-[12px] text-tertiary">When {data.teammate.fullName} flags something, it&apos;ll land here.</div>
+            </div>
+          )}
+        </div>
+
+        <FocusList items={focusItems} />
+      </section>
+
+      {/* From teammate + Latest drops */}
+      <section className="mb-4 grid gap-4 xl:grid-cols-[1fr_320px]">
         <div className="surface-card p-[18px] pb-2">
           <div className="mb-4 flex items-start justify-between">
             <div>
               <div className="text-[15px] font-semibold tracking-[-0.01em]">Latest drops</div>
-              <div className="mt-0.5 text-xs text-tertiary">
+              <div className="mt-0.5 text-[12px] text-tertiary">
                 {libraryCount > 0
-                  ? `${libraryCount} item${libraryCount !== 1 ? "s" : ""} saved in the library`
+                  ? `${libraryCount} in the library`
                   : "Nothing saved yet"}
               </div>
             </div>
             <Link className="text-xs font-medium text-accent transition hover:text-accent-hover" href="/library">
-              View all →
+              Open library →
             </Link>
           </div>
 
@@ -95,73 +148,68 @@ export default async function LaunchpadPage() {
             </div>
           ) : (
             <div className="flex flex-col items-center py-12 text-center">
-              <div className="mb-1.5 text-[13px] font-medium text-secondary">Nothing in the library yet.</div>
+              <div className="mb-1.5 text-[13px] font-medium text-secondary">Library&apos;s empty.</div>
               <div className="text-[12px] text-tertiary">
-                Drop a link, file, or screenshot and it shows up here.
+                Drop a link, file, or screenshot and it&apos;ll show up here.
               </div>
             </div>
           )}
         </div>
 
-        {/* Your queue */}
         <div className="surface-card p-5">
           <div className="mb-3 flex items-center justify-between">
-            <div className="text-[15px] font-semibold">Your queue</div>
-            <Link className="text-xs font-medium text-accent transition hover:text-accent-hover" href="/decisions">
-              All →
-            </Link>
+            <div className="text-[15px] font-semibold">From {data.teammate.fullName}</div>
+            <span className="text-[11px] text-tertiary">last {data.recentUpdates.length || 0}</span>
           </div>
-
-          {hasPending ? (
-            <div className="space-y-2.5">
-              {data.pendingForCurrentUser.map((decision) => (
+          {hasFromTeammate ? (
+            <div className="space-y-2">
+              {data.recentUpdates.map((item) => (
                 <Link
-                  className="block rounded-[8px] border-l-[3px] border-accent bg-subtle px-3.5 py-3 transition hover:bg-elevated"
-                  href={`/decisions/${decision.id}`}
-                  key={decision.id}
+                  className="block rounded-[8px] px-3 py-2.5 transition hover:bg-subtle"
+                  href={`/library?item=${item.id}`}
+                  key={item.id}
                 >
-                  <div className={`mb-1 text-[10.5px] font-semibold uppercase tracking-[0.07em] ${teammateColor}`}>
-                    {data.teammate.fullName}
+                  <div className="mb-0.5 flex items-center gap-2">
+                    <span className={`text-[10.5px] font-semibold uppercase tracking-[0.07em] ${teammateColor}`}>
+                      {item.type}
+                    </span>
+                    <span className="text-[11px] text-tertiary">{ageWord(item.createdAt)}</span>
                   </div>
-                  <div className="text-[13px] leading-[1.45] text-primary">{decision.question}</div>
+                  <div className="line-clamp-1 text-[13px] font-medium text-primary">{item.title}</div>
+                  <div className="line-clamp-1 text-[12px] text-secondary">{item.note}</div>
                 </Link>
               ))}
             </div>
           ) : (
-            <div className="flex items-center justify-center py-10 text-[12.5px] text-tertiary">
-              Nothing waiting on you.
+            <div className="py-8 text-center text-[12.5px] text-tertiary">
+              Nothing new from {data.teammate.fullName} yet.
             </div>
           )}
         </div>
       </section>
 
-      {/* Interactive focus list */}
-      <FocusList items={focusItems} />
-
-      {/* Roadmap */}
+      {/* Roadmap — calmer */}
       <section className="surface-card px-6 py-5">
         <div className="mb-4 flex items-center justify-between">
-          <div className="text-[15px] font-semibold">Roadmap</div>
-          <div className="text-[11.5px] text-tertiary">
-            Phase <strong className="font-[var(--font-mono)] text-primary">01</strong> of{" "}
-            <strong className="font-[var(--font-mono)] text-primary">06</strong> · Foundation
+          <div>
+            <div className="text-[15px] font-semibold">Where we are</div>
+            <div className="mt-0.5 text-[12px] text-tertiary">Phase 1 of 6 · Foundation</div>
           </div>
         </div>
-        <div className="grid gap-4 md:grid-cols-3 xl:grid-cols-6">
+        <div className="grid gap-3 md:grid-cols-3 xl:grid-cols-6">
           {roadmapPhases.map((phase) => {
             const isCurrent = "current" in phase && phase.current;
             return (
-              <div className="text-center" key={phase.id}>
-                <div
-                  className={`mx-auto mb-2.5 grid h-[30px] w-[30px] place-items-center rounded-full border font-[var(--font-mono)] text-[10.5px] font-bold ${
-                    isCurrent
-                      ? "border-[2px] border-accent text-accent shadow-[0_0_0_3px_var(--accent-soft)]"
-                      : "border-border-strong text-tertiary"
-                  }`}
-                >
-                  {phase.id}
+              <div
+                className={`rounded-lg border px-3 py-2.5 transition ${
+                  isCurrent ? "border-accent bg-accent-soft" : "border-border bg-subtle"
+                }`}
+                key={phase.id}
+              >
+                <div className={`text-[10.5px] font-semibold ${isCurrent ? "text-accent" : "text-tertiary"}`}>
+                  Phase {phase.id}
                 </div>
-                <div className={`text-[12px] font-semibold ${isCurrent ? "text-primary" : "text-tertiary"}`}>
+                <div className={`mt-0.5 text-[12.5px] font-semibold ${isCurrent ? "text-primary" : "text-secondary"}`}>
                   {phase.name}
                 </div>
               </div>
@@ -178,14 +226,50 @@ function metricValue(metric: Metric | undefined): string {
   return String(metric.value);
 }
 
-function MetricTile({ label, value, meta }: { label: string; value: string; meta: string }) {
+function SignalItem({
+  label,
+  sub,
+  children
+}: {
+  label: string;
+  sub?: string;
+  children: React.ReactNode;
+}) {
   return (
-    <div className="surface-card p-5">
-      <div className="mb-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-tertiary">{label}</div>
-      <div className="flex items-baseline gap-1.5">
-        <span className="text-[28px] font-bold tracking-[-0.03em]">{value}</span>
-        <span className="text-[11.5px] text-tertiary">{meta}</span>
+    <div className="flex min-w-[120px] flex-col gap-0.5">
+      <div className="flex items-baseline gap-1.5 text-[11.5px] text-tertiary">
+        <span className="font-medium">{label}</span>
+        {sub ? <span className="text-[10.5px]">· {sub}</span> : null}
       </div>
+      <div className="text-[15px] font-semibold text-primary">{children}</div>
     </div>
   );
+}
+
+function MetricNumber({ value, unit }: { value: string; unit: string }) {
+  return (
+    <span className="flex items-baseline gap-1.5">
+      <span className="text-[20px] font-bold tracking-[-0.02em]">{value}</span>
+      <span className="text-[11px] font-normal text-tertiary">{unit}</span>
+    </span>
+  );
+}
+
+function TeammateTime({ timezone, colorClass }: { timezone: string; colorClass: string }) {
+  return (
+    <span className={`text-[15px] font-semibold ${colorClass}`}>
+      {timezone}
+    </span>
+  );
+}
+
+function ageWord(iso: string): string {
+  const diff = Date.now() - new Date(iso).getTime();
+  const mins = Math.floor(diff / 60_000);
+  if (mins < 60) return `${Math.max(1, mins)}m ago`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  if (days < 7) return `${days}d ago`;
+  return `${Math.floor(days / 7)}w ago`;
 }

@@ -33,7 +33,7 @@ export function DecisionDetail({
         <div className="mb-3 flex items-center gap-2.5">
           <span
             className={cn(
-              "rounded px-2 py-0.5 font-[var(--font-mono)] text-[10px] font-bold uppercase tracking-[0.08em]",
+              "rounded-full px-2 py-0.5 text-[11px] font-semibold capitalize",
               statusStyles[decision.status]
             )}
           >

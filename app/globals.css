@@ -3,17 +3,19 @@
 @tailwind utilities;
 
 :root {
-  --bg-app: #fbfaf7;
-  --bg-sidebar: #f5f4ef;
+  --bg-app: #F7F5F0;
+  --bg-sidebar: #F1EEE7;
   --bg-card: #ffffff;
-  --bg-card-hover: #f8f7f3;
-  --bg-elevated: #f1efe9;
-  --bg-subtle: #f8f7f3;
-  --border: #eae7df;
-  --border-strong: #d9d5cb;
-  --accent: #4f5bd5;
-  --accent-hover: #3f4bc4;
-  --accent-soft: rgba(79, 91, 213, 0.08);
+  --bg-card-hover: #F3F1EA;
+  --bg-elevated: #ECE9E0;
+  --bg-subtle: #F3F1EA;
+  --border: #E4E0D5;
+  --border-strong: #D2CDBF;
+  --accent: #1E3FC5;
+  --accent-hover: #17329E;
+  --accent-soft: rgba(30, 63, 197, 0.08);
+  --brand-gradient: linear-gradient(135deg, #0A1B5E 0%, #1E3FC5 60%, #2D54E3 100%);
+  --brand-gradient-hover: linear-gradient(135deg, #06124A 0%, #17329E 60%, #1E3FC5 100%);
   --green: #16a34a;
   --green-soft: rgba(22, 163, 74, 0.1);
   --amber: #d97706;
@@ -92,7 +94,13 @@ textarea {
   }
 
   .action-btn-primary {
-    @apply border-accent bg-accent text-white hover:border-accent-hover hover:bg-accent-hover;
+    background: var(--brand-gradient);
+    @apply border-transparent text-white shadow-[0_1px_2px_rgba(10,27,94,0.25)];
+  }
+
+  .action-btn-primary:hover {
+    background: var(--brand-gradient-hover);
+    @apply border-transparent;
   }
 
   .action-btn-ghost {

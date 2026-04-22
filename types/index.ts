@@ -82,3 +82,12 @@ export interface Metric {
   label: string;
   value: number;
 }
+
+export interface Task {
+  id: string;
+  ownerId: string;
+  title: string;
+  done: boolean;
+  createdAt: string;
+  completedAt: string | null;
+}

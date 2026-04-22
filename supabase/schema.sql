@@ -48,6 +48,15 @@ create table if not exists public.decisions (
   created_at timestamptz not null default timezone('utc', now())
 );
 
+create table if not exists public.tasks (
+  id uuid primary key default gen_random_uuid(),
+  owner_id uuid not null references public.users(id) on delete cascade,
+  title text not null,
+  done boolean not null default false,
+  created_at timestamptz not null default timezone('utc', now()),
+  completed_at timestamptz
+);
+
 create table if not exists public.decision_positions (
   id uuid primary key default gen_random_uuid(),
   decision_id uuid not null references public.decisions(id) on delete cascade,
@@ -64,6 +73,8 @@ create index if not exists library_items_type_idx on public.library_items (type)
 create index if not exists tags_slug_idx on public.tags (slug);
 create index if not exists decisions_status_idx on public.decisions (status);
 create index if not exists decisions_waiting_on_user_id_idx on public.decisions (waiting_on_user_id);
+create index if not exists tasks_owner_id_idx on public.tasks (owner_id);
+create index if not exists tasks_done_idx on public.tasks (done);
 
 alter table public.users enable row level security;
 alter table public.tags enable row level security;
@@ -71,6 +82,12 @@ alter table public.library_items enable row level security;
 alter table public.library_item_tags enable row level security;
 alter table public.decisions enable row level security;
 alter table public.decision_positions enable row level security;
+alter table public.tasks enable row level security;
+
+drop policy if exists "authenticated users can read tasks" on public.tasks;
+create policy "authenticated users can read tasks" on public.tasks for select to authenticated using (true);
+drop policy if exists "authenticated users can manage tasks" on public.tasks;
+create policy "authenticated users can manage tasks" on public.tasks for all to authenticated using (true) with check (true);
 
 drop policy if exists "authenticated users can read users" on public.users;
 create policy "authenticated users can read users" on public.users for select to authenticated using (true);

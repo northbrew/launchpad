@@ -11,9 +11,9 @@ export function FocusList({ items }: { items: FocusItem[] }) {
 
   if (items.length === 0) {
     return (
-      <section className="mb-4 surface-card p-5">
-        <div className="mb-1 text-[15px] font-semibold">This week&apos;s focus</div>
-        <p className="py-6 text-center text-[12.5px] text-tertiary">No focus items for this week yet.</p>
+      <section className="surface-card p-5">
+        <div className="mb-1 text-[15px] font-semibold tracking-[-0.01em]">This week</div>
+        <p className="py-6 text-center text-[12.5px] text-tertiary">Nothing set for this week yet.</p>
       </section>
     );
   }
@@ -32,11 +32,11 @@ export function FocusList({ items }: { items: FocusItem[] }) {
   }
 
   return (
-    <section className="mb-4 surface-card p-5">
+    <section className="surface-card p-5">
       <div className="mb-3 flex items-center justify-between">
-        <div className="text-[15px] font-semibold">This week&apos;s focus</div>
-        <span className="font-[var(--font-mono)] text-[11.5px] text-tertiary">
-          {doneCount} of {total} done
+        <div className="text-[15px] font-semibold tracking-[-0.01em]">This week</div>
+        <span className="text-[11.5px] text-tertiary">
+          {doneCount} / {total}
         </span>
       </div>
       <div className="space-y-1">

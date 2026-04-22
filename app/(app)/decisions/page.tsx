@@ -4,7 +4,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { getDecisionCounts, getDecisions, getTeammate, requireCurrentUser } from "@/lib/data/queries";
 
 const tabs = [
-  { key: "open", label: "Active" },
+  { key: "open", label: "Open" },
   { key: "resolved", label: "Resolved" },
   { key: "all", label: "All" }
 ] as const;
@@ -25,7 +25,7 @@ export default async function DecisionsPage({
   return (
     <>
       <PageHeader
-        subtitle="Track what's been decided and what still needs a call."
+        subtitle="What still needs a call, and the calls already made."
         title="Decisions"
       />
 
@@ -63,12 +63,12 @@ export default async function DecisionsPage({
       ) : (
         <div className="surface-card flex flex-col items-center py-16 text-center">
           <div className="mb-1.5 text-[13px] font-medium text-secondary">
-            {status === "resolved" ? "No resolved decisions yet." : "No active decisions."}
+            {status === "resolved" ? "Nothing closed out yet." : "No open calls. Aligned for now."}
           </div>
           <div className="text-[12px] text-tertiary">
             {status === "resolved"
-              ? "When you close out a decision, it shows up here."
-              : "When something needs a call, it goes here."}
+              ? "Once you wrap up a decision, it lands here."
+              : `When ${teammate.fullName} or you flag something, it shows up here.`}
           </div>
         </div>
       )}
