@@ -32,7 +32,7 @@ export default async function LibraryPage({
     <>
       <PageHeader
         actions={<NewDropModal currentUser={currentUser} tags={tags} teammate={teammate} />}
-        subtitle="Everything you send each other. Searchable, taggable, never lost."
+        subtitle={`Everything you and ${teammate.fullName} have saved for each other.`}
         title="Library"
       />
 
@@ -44,7 +44,7 @@ export default async function LibraryPage({
               className="input-shell"
               defaultValue={searchParams?.q ?? ""}
               name="q"
-              placeholder="Search by title, note, tag, or sender… press Enter"
+              placeholder="Search titles, notes, tags, or who sent it"
             />
             <input name="type" type="hidden" value={searchParams?.type ?? "all"} />
             <input name="tag" type="hidden" value={searchParams?.tag ?? "all"} />
@@ -113,15 +113,15 @@ export default async function LibraryPage({
               })
             ) : allItems.length === 0 ? (
               <div className="flex flex-col items-center py-14 text-center">
-                <div className="mb-1.5 text-[13px] font-medium text-secondary">Library is empty.</div>
+                <div className="mb-1.5 text-[13px] font-medium text-secondary">Nothing saved yet.</div>
                 <div className="text-[12px] text-tertiary">
-                  Hit <strong>New Drop</strong> to save the first link, file, or note.
+                  Hit <strong className="font-semibold text-secondary">New drop</strong> and this fills up fast.
                 </div>
               </div>
             ) : (
               <div className="flex flex-col items-center py-14 text-center">
                 <div className="mb-1.5 text-[13px] font-medium text-secondary">
-                  {isFiltered ? "No items match those filters." : "Nothing to show."}
+                  {isFiltered ? "Nothing matches those filters." : "Nothing to show."}
                 </div>
                 {isFiltered && (
                   <a className="mt-2 text-[12px] text-accent hover:underline" href="/library">

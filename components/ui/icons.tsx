@@ -3,8 +3,15 @@ import type { SVGProps } from "react";
 export function BrandMark(props: SVGProps<SVGSVGElement>) {
   return (
     <svg viewBox="0 0 32 32" fill="none" {...props}>
-      <path d="M6 8 L18 8 L18 14 L10 14 L10 18 L20 18 L20 24 L6 24 Z" stroke="#4F5BD5" strokeWidth="2" strokeLinejoin="round" />
-      <path d="M22 6 L26 6 L26 26 L22 26" stroke="#4F5BD5" strokeWidth="2" strokeLinejoin="round" />
+      <defs>
+        <linearGradient id="brandGradient" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stopColor="#0A1B5E" />
+          <stop offset="60%" stopColor="#1E3FC5" />
+          <stop offset="100%" stopColor="#2D54E3" />
+        </linearGradient>
+      </defs>
+      <path d="M6 8 L18 8 L18 14 L10 14 L10 18 L20 18 L20 24 L6 24 Z" stroke="url(#brandGradient)" strokeWidth="2" strokeLinejoin="round" />
+      <path d="M22 6 L26 6 L26 26 L22 26" stroke="url(#brandGradient)" strokeWidth="2" strokeLinejoin="round" />
     </svg>
   );
 }

@@ -10,7 +10,8 @@ import type {
   LibraryFilters,
   LibraryItem,
   Metric,
-  Tag
+  Tag,
+  Task
 } from "@/types";
 
 type UserRow = {
@@ -300,6 +301,38 @@ export async function getFocusItems(week: string): Promise<FocusItem[]> {
     owner: row.owner,
     done: row.done
   }));
+}
+
+type TaskRow = {
+  id: string;
+  owner_id: string;
+  title: string;
+  done: boolean;
+  created_at: string;
+  completed_at: string | null;
+};
+
+function mapTask(row: TaskRow): Task {
+  return {
+    id: row.id,
+    ownerId: row.owner_id,
+    title: row.title,
+    done: row.done,
+    createdAt: row.created_at,
+    completedAt: row.completed_at
+  };
+}
+
+export async function getTasksForUser(ownerId: string): Promise<Task[]> {
+  const supabase = createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("tasks")
+    .select("id, owner_id, title, done, created_at, completed_at")
+    .eq("owner_id", ownerId)
+    .order("done", { ascending: true })
+    .order("created_at", { ascending: false });
+  if (error) return [];
+  return (data ?? []).map(mapTask);
 }
 
 export async function getMetrics(keys: string[]): Promise<Metric[]> {

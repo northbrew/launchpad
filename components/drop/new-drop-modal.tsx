@@ -14,6 +14,12 @@ const dropTypes = [
   { key: "figma", label: "Figma" }
 ] as const;
 
+function FieldLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <label className="mb-1.5 block text-[11.5px] font-medium text-tertiary">{children}</label>
+  );
+}
+
 export function NewDropModal({
   currentUser,
   teammate,
@@ -44,7 +50,7 @@ export function NewDropModal({
         return;
       }
       setOpen(false);
-      setToast(`Drop sent to ${teammate.fullName}.`);
+      setToast(`Sent to ${teammate.fullName}.`);
       router.refresh();
       setTimeout(() => setToast(""), 4000);
     } finally {
@@ -60,7 +66,7 @@ export function NewDropModal({
       </button>
 
       {toast ? (
-        <div className="fixed bottom-7 right-7 z-[2000] flex items-center gap-2 rounded-lg bg-primary px-4 py-3 text-[13px] font-medium text-card shadow-[0_8px_24px_rgba(0,0,0,0.15)]">
+        <div className="fixed bottom-7 right-7 z-[2000] flex items-center gap-2 rounded-lg bg-primary px-4 py-3 text-[13px] font-medium text-white shadow-[0_8px_24px_rgba(0,0,0,0.15)]">
           <span className="text-green">●</span>
           {toast}
         </div>
@@ -69,19 +75,22 @@ export function NewDropModal({
       {open ? (
         <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-[rgba(20,20,20,0.4)] p-5 backdrop-blur-[4px]" onClick={() => setOpen(false)}>
           <div className="max-h-[90vh] w-full max-w-[540px] overflow-y-auto rounded-[14px] bg-card shadow-[0_20px_60px_rgba(0,0,0,0.2)]" onClick={(event) => event.stopPropagation()}>
-            <div className="flex items-center justify-between px-6 pb-3 pt-5">
-              <div className="text-[17px] font-semibold tracking-[-0.01em]">Drop something for {teammate.fullName}</div>
-              <button className="grid h-7 w-7 place-items-center rounded-md text-tertiary transition hover:bg-elevated hover:text-primary" onClick={() => setOpen(false)} type="button">
+            <div className="flex items-start justify-between gap-4 px-6 pb-2 pt-5">
+              <div>
+                <div className="text-[17px] font-semibold tracking-[-0.01em]">Drop something for {teammate.fullName}</div>
+                <div className="mt-0.5 text-[12.5px] text-tertiary">Links, files, screenshots — anything worth saving.</div>
+              </div>
+              <button className="grid h-7 w-7 shrink-0 place-items-center rounded-md text-tertiary transition hover:bg-elevated hover:text-primary" onClick={() => setOpen(false)} type="button" aria-label="Close">
                 ×
               </button>
             </div>
             <form action={submit}>
-              <div className="px-6 pb-5">
-                <label className="mb-1.5 block text-[11.5px] font-semibold uppercase tracking-[0.06em] text-tertiary">Type</label>
+              <div className="px-6 pb-5 pt-3">
+                <FieldLabel>What kind?</FieldLabel>
                 <div className="mb-5 grid grid-cols-3 gap-1.5 sm:grid-cols-5">
                   {dropTypes.map((dropType) => (
                     <button
-                      className={cn("rounded-lg border-[1.5px] border-transparent bg-subtle px-2 py-3 text-center text-[11px] font-semibold text-secondary transition hover:border-border-strong hover:text-primary", type === dropType.key && "border-accent bg-accent-soft text-accent")}
+                      className={cn("rounded-lg border-[1.5px] border-transparent bg-subtle px-2 py-3 text-center text-[12px] font-medium text-secondary transition hover:border-border-strong hover:text-primary", type === dropType.key && "border-accent bg-accent-soft text-accent")}
                       key={dropType.key}
                       onClick={(event) => {
                         event.preventDefault();
@@ -94,30 +103,30 @@ export function NewDropModal({
                   ))}
                 </div>
 
-                <label className="mb-1.5 block text-[11.5px] font-semibold uppercase tracking-[0.06em] text-tertiary">Title</label>
-                <input className="input-shell mb-4" name="title" placeholder="What is this?" required />
+                <FieldLabel>Title</FieldLabel>
+                <input className="input-shell mb-4" name="title" placeholder="Short name — what is it?" required />
 
                 {isUrlType ? (
                   <>
-                    <label className="mb-1.5 block text-[11.5px] font-semibold uppercase tracking-[0.06em] text-tertiary">Paste URL</label>
-                    <input className="input-shell mb-4" name="sourceUrl" placeholder="https://..." required />
+                    <FieldLabel>URL</FieldLabel>
+                    <input className="input-shell mb-4" name="sourceUrl" placeholder="https://…" required />
                   </>
                 ) : (
                   <>
-                    <label className="mb-1.5 block text-[11.5px] font-semibold uppercase tracking-[0.06em] text-tertiary">Upload</label>
-                    <label className="mb-4 block cursor-pointer rounded-[10px] border-[1.5px] border-dashed border-border-strong bg-subtle px-5 py-8 text-center transition hover:border-accent hover:bg-accent-soft">
-                      <IconUpload className="mx-auto mb-2.5 h-8 w-8 text-accent" />
-                      <div className="text-[13px] text-secondary">Drag and drop, or <strong className="font-semibold text-accent">browse</strong></div>
-                      <div className="mt-1 text-[11.5px] text-tertiary">Up to 25MB · PNG, PDF, DOC, MP4</div>
+                    <FieldLabel>File</FieldLabel>
+                    <label className="mb-4 block cursor-pointer rounded-[10px] border-[1.5px] border-dashed border-border-strong bg-subtle px-5 py-7 text-center transition hover:border-accent hover:bg-accent-soft">
+                      <IconUpload className="mx-auto mb-2 h-7 w-7 text-accent" />
+                      <div className="text-[13px] text-secondary">Drop a file, or <strong className="font-semibold text-accent">browse</strong></div>
+                      <div className="mt-0.5 text-[11.5px] text-tertiary">Up to 25MB · PNG, PDF, DOC, MP4</div>
                       <input accept="image/*,.pdf,.doc,.docx,.txt,.mp4" className="hidden" name="file" required={["doc", "screenshot"].includes(type)} type="file" />
                     </label>
                   </>
                 )}
 
-                <label className="mb-1.5 block text-[11.5px] font-semibold uppercase tracking-[0.06em] text-tertiary">One-line note</label>
-                <textarea className="mb-4 min-h-[84px] w-full rounded-lg border border-border bg-card px-3 py-2.5 text-[13.5px] text-primary outline-none transition placeholder:text-tertiary focus:border-accent" name="note" placeholder="Why are you sending this?" required />
+                <FieldLabel>Why you&apos;re sending it</FieldLabel>
+                <textarea className="mb-4 min-h-[72px] w-full rounded-lg border border-border bg-card px-3 py-2.5 text-[13.5px] text-primary outline-none transition placeholder:text-tertiary focus:border-accent" name="note" placeholder={`A quick note for ${teammate.fullName}…`} required />
 
-                <label className="mb-1.5 block text-[11.5px] font-semibold uppercase tracking-[0.06em] text-tertiary">Tag</label>
+                <FieldLabel>Tag (optional)</FieldLabel>
                 <div className="flex flex-wrap gap-1.5">
                   {tags.map((tag) => (
                     <button
@@ -134,20 +143,20 @@ export function NewDropModal({
                   ))}
                 </div>
               </div>
-              <div className="flex items-center justify-between gap-4 border-t border-border px-6 py-3.5">
-                <div className="flex items-center gap-2 text-xs text-tertiary">
-                  Posting as
+              <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border px-6 py-3.5">
+                <div className="flex items-center gap-2 text-[12px] text-tertiary">
+                  From
                   <span className="grid h-5 w-5 place-items-center rounded-full text-[10px] font-bold text-white" style={{ background: `var(--${currentUser.colorToken})` }}>
                     {currentUser.initials}
                   </span>
-                  {currentUser.fullName}
+                  <span className="font-medium text-secondary">{currentUser.fullName}</span>
                 </div>
                 <div className="flex gap-2">
                   <button className="action-btn" onClick={() => setOpen(false)} type="button">
                     Cancel
                   </button>
                   <button className="action-btn action-btn-primary" disabled={isPending} type="submit">
-                    {isPending ? "Saving..." : "Drop it"}
+                    {isPending ? "Sending…" : `Send to ${teammate.fullName}`}
                   </button>
                 </div>
               </div>

@@ -30,20 +30,20 @@ export function DecisionCard({
 
   return (
     <Link
-      className="mb-2.5 flex items-start gap-4 rounded-[10px] border border-border bg-card px-5 py-4 shadow-card transition hover:-translate-y-px hover:border-border-strong hover:shadow-[0_2px_6px_rgba(0,0,0,0.05)]"
+      className="mb-2.5 flex items-start gap-4 rounded-[10px] border border-border bg-card px-5 py-4 shadow-card transition hover:border-border-strong hover:bg-card-hover"
       href={`/decisions/${decision.id}`}
     >
       <div className="min-w-0 flex-1">
         <div className="mb-2 flex items-center gap-2">
           <span
             className={cn(
-              "rounded px-2 py-0.5 font-[var(--font-mono)] text-[10px] font-bold uppercase tracking-[0.08em]",
+              "rounded-full px-2 py-0.5 text-[11px] font-semibold",
               statusStyles[decision.status]
             )}
           >
             {statusLabels[decision.status]}
           </span>
-          <span className="font-[var(--font-mono)] text-[11px] text-tertiary">{ageLabel(decision.createdAt)}</span>
+          <span className="text-[11.5px] text-tertiary">{ageLabel(decision.createdAt)}</span>
         </div>
 
         <div className="mb-3 text-[15px] font-semibold leading-[1.4] tracking-[-0.01em]">
